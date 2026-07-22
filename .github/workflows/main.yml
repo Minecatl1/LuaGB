@@ -1,0 +1,39 @@
+name: Build LuaGB
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make zip unzip wget
+      
+      - name: Install Love 0.11.2
+        run: |
+          cd /tmp
+          wget https://github.com/love2d/love/releases/download/0.11.2/love-0.11.2-linux-x64.AppImage
+          chmod +x love-0.11.2-linux-x64.AppImage
+          sudo mv love-0.11.2-linux-x64.AppImage /usr/local/bin/love
+      
+      - name: Create games directory
+        run: cd ~ && mkdir -p games
+      
+      - name: Run make
+        run: make love
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: LuaGB-build
+          path: LuaGB.love
